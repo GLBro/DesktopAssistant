@@ -19,9 +19,12 @@ screen_height = window.winfo_screenheight()
 horizontal_displacement = 0
 xpos = int(screen_width/2)
 clicked = False
+start_speaking = False
 speaking = False
 img = PhotoImage(file="animations/bubble_bl.png")
 bubble_text = ""
+bubble_reference = None
+
 def setupWindow():
     global frames, window, label, screen_width, screen_height
     speech.getAPI()
@@ -71,6 +74,13 @@ def setUpAlerted():
     horizontal_displacement = 0
     label.config(image=frames[0])
 
+def setUpTalking():
+    global frames, horizontal_displacement, label
+    frames = [PhotoImage(file="animations/talking.gif", format="gif -index %i" % (i)) for i in range(9)]
+    horizontal_displacement = 0
+    label.config(image=frames[0])
+
+
 
 
 def changeAnimation():
@@ -88,7 +98,7 @@ def changeAnimation():
 
 
 def animate(count):
-    global frames, label, window, default, xpos, horizontal_displacement, clicked, speaking
+    global frames, label, window, default, xpos, horizontal_displacement, clicked, start_speaking, speaking
     if len(frames) > 0:
         count += 1
         if count >= len(frames):
@@ -98,7 +108,7 @@ def animate(count):
         label.config(image=frames[count])
         num = randint(0, 101)
         #print(num)
-        if num < 5 and not clicked:
+        if num < 5 and not clicked and not speaking:
             changeAnimation()
             label.config(image=default)
     xpos += horizontal_displacement
@@ -107,9 +117,10 @@ def animate(count):
     elif xpos > screen_width-150:
         xpos = screen_width-150
     window.geometry("150x160+" + str(xpos) + "+" + str(screen_height-220))
-    if speaking:
+    if start_speaking:
         summonSpeech()
-        speaking = False
+        start_speaking = False
+        speaking = True
     window.after(100, animate, count)
 
 def click(event):
@@ -123,20 +134,22 @@ def click(event):
             speech_thread = threading.Thread(target=speech.listen)
             speech_thread.start()
         except Exception as e:
-            raise e
+            unclick("Sorry, I didn't catch that")
 
 def unclick(text):
-    global clicked, speech_thread, speaking, bubble_text
+    global clicked, speech_thread, start_speaking, bubble_text
     clicked = False
     setUpIdle()
-    speaking = True
+    start_speaking = True
     bubble_text = text
+    time.sleep(0.25)
+    speech.speak(text)
 
 
 
 
 def summonSpeech():
-    global img, bubble_text
+    global img, bubble_text, bubble_reference
     print("test")
     bubble = Toplevel()
     ypos = screen_height-200
@@ -154,4 +167,12 @@ def summonSpeech():
         bubble.geometry("300x150+" + str(xpos + 150) + "+" + str(ypos - 150))
         img = PhotoImage(file="animations/bubble_bl.png")
     pic.config(image=img)
+    setUpTalking()
+    bubble_reference = bubble
     window.update_idletasks()
+
+def stopTalking():
+    global speaking, bubble_reference
+    speaking = False
+    setUpIdle()
+    bubble_reference.destroy()
