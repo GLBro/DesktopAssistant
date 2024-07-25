@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import pyttsx3
 import sqlite3
 import movement
+import time
 
 
 def getAPI():
@@ -96,6 +97,7 @@ def train():
 
 def learn():
     global microphone, recognizer, connection, cursor, prev_question
+    time.sleep(5)
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)

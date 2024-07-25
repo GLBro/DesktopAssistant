@@ -73,6 +73,7 @@ def setUpSleep():
 
 def setUpAlerted():
     global frames, horizontal_displacement, label
+    print("alert")
     frames = [PhotoImage(file="animations/alerted.gif", format="gif -index %i" % (i)) for i in range(10)]
     horizontal_displacement = 0
     label.config(image=frames[0])
@@ -111,7 +112,7 @@ def animate(count):
         label.config(image=frames[count])
         num = randint(0, 101)
         #print(num)
-        if num < 5 and not clicked and not speaking:
+        if num < 5 and not clicked and not speaking and not asking:
             changeAnimation()
             label.config(image=default)
     xpos += horizontal_displacement
@@ -146,10 +147,9 @@ def click(event):
             unclick("Sorry, I didn't catch that")
 
 def unclick(text):
-    global clicked, speech_thread, start_speaking, bubble_text, asking, add_new_answer
+    global clicked, speech_thread, start_speaking, bubble_text, asking, add_new_answer, speaking
     clicked = False
-    if not add_new_answer:
-        setUpIdle()
+    #setUpIdle()
     start_speaking = True
     bubble_text = text
     split_text = bubble_text.split(" ")
@@ -164,7 +164,6 @@ def unclick(text):
         else:
             out += chunk+" "
     bubble_text = out
-    threading.current_thread().wait()
     speech.speak(text)
 
 
@@ -216,6 +215,7 @@ def getNewAnswer():
         speech_thread = threading.Thread(target=speech.learn)
         speech_thread.start()
         asking = False
+        setUpAlerted()
     except Exception as e:
         unclick("Sorry, I didn't catch that")
 
