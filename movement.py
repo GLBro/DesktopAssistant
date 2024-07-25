@@ -24,6 +24,9 @@ speaking = False
 img = PhotoImage(file="animations/bubble_bl.png")
 bubble_text = ""
 bubble_reference = None
+asking = False
+new_answer = ""
+add_new_answer = False
 
 def setupWindow():
     global frames, window, label, screen_width, screen_height
@@ -98,7 +101,7 @@ def changeAnimation():
 
 
 def animate(count):
-    global frames, label, window, default, xpos, horizontal_displacement, clicked, start_speaking, speaking
+    global frames, label, window, default, xpos, horizontal_displacement, clicked, start_speaking, speaking, asking, new_answer, add_new_answer
     if len(frames) > 0:
         count += 1
         if count >= len(frames):
@@ -121,6 +124,12 @@ def animate(count):
         summonSpeech()
         start_speaking = False
         speaking = True
+    if asking and not speaking:
+        getNewAnswer()
+        asking = False
+    if add_new_answer:
+        speech.addToDatabase(new_answer)
+        add_new_answer = False
     window.after(100, animate, count)
 
 def click(event):
@@ -137,13 +146,27 @@ def click(event):
             unclick("Sorry, I didn't catch that")
 
 def unclick(text):
-    global clicked, speech_thread, start_speaking, bubble_text
+    global clicked, speech_thread, start_speaking, bubble_text, asking, add_new_answer
     clicked = False
-    setUpIdle()
+    if not add_new_answer:
+        setUpIdle()
     start_speaking = True
     bubble_text = text
-    time.sleep(0.25)
+    split_text = bubble_text.split(" ")
+    out = ""
+    counter = 0
+    limit = 15
+    for chunk in split_text:
+        counter += len(chunk)
+        if counter > limit:
+            limit = limit + 15
+            out += chunk+"\n"
+        else:
+            out += chunk+" "
+    bubble_text = out
+    threading.current_thread().wait()
     speech.speak(text)
+
 
 
 
@@ -172,7 +195,31 @@ def summonSpeech():
     window.update_idletasks()
 
 def stopTalking():
-    global speaking, bubble_reference
+    global speaking, bubble_reference, asking
     speaking = False
-    setUpIdle()
+    if not asking:
+        setUpIdle()
+    else:
+        setUpAlerted()
     bubble_reference.destroy()
+
+def askForNewAnswer():
+    global asking
+    asking = True
+
+def getNewAnswer():
+    global xpos, screen_height, clicked, speech_thread, asking
+    print("Getting new answer")
+    clicked = True
+    setUpAlerted()
+    try:
+        speech_thread = threading.Thread(target=speech.learn)
+        speech_thread.start()
+        asking = False
+    except Exception as e:
+        unclick("Sorry, I didn't catch that")
+
+def updateNewAnswer(text):
+    global new_answer, add_new_answer
+    new_answer = text
+    add_new_answer = True
