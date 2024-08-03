@@ -12,7 +12,7 @@ import time
 import video
 
 
-def getAPI():
+def get_api():
     global CLIENTID, CLIENTKEY
     load_dotenv()
     CLIENTID = os.getenv("CLIENTID")
@@ -67,7 +67,7 @@ def respond(text):
             best_pos = -1
             best_score = 0
             for i in range(len(ans)):
-                score = LCS(ans[i][0], text) - (abs(len(ans[i][0])-len(text))*0.1)
+                score = lcs(ans[i][0], text) - (abs(len(ans[i][0])-len(text))*0.1)
                 #print(score)
                 if len(ans[i][0])*0.8 < score and score > best_score:
                     print(len(ans[i][0])*0.8, score)
@@ -83,7 +83,7 @@ def respond(text):
 
 
 
-def LCS(text1, text2):
+def lcs(text1, text2):
     if text1 in text2:
         return len(text1)
     if text2 in text1:
@@ -99,7 +99,7 @@ def LCS(text1, text2):
     #print(data)
     return data[len(text1)][len(text2)]
 
-def createTable():
+def create_table():
     global connection, cursor
     connection.execute("CREATE TABLE responses(QUESTION TEXT PRIMARY KEY UNIQUE , ANSWER TEXT);")
     connection.execute("INSERT INTO responses VALUES ('how are you', 'i am good thanks')")
@@ -129,7 +129,7 @@ def learn():
         movement.updateNewAnswer(text[0])
     movement.unclick(text[0])
 
-def addToDatabase(text):
+def add_to_database(text):
     global prev_question, connection, cursor
     connection.execute("INSERT OR IGNORE INTO responses VALUES ('"+prev_question+"', '"+text+"')")
     connection.commit()
@@ -143,7 +143,7 @@ connection = sqlite3.connect('chat.db')
 cursor = connection.cursor()
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='responses'")
 if cursor.fetchone() is None:
-    createTable()
+    create_table()
 else:
     #train()
     cursor.execute("SELECT * FROM responses")

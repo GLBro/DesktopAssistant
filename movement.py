@@ -29,7 +29,7 @@ new_answer = ""
 add_new_answer = False
 turn_off = False
 
-def setupWindow():
+def setup_window():
     global frames, window, label, screen_width, screen_height
     speech.getAPI()
     window.geometry("150x160+"+str(xpos)+"+"+str(screen_height-200))
@@ -38,48 +38,48 @@ def setupWindow():
     window.wm_attributes("-transparentcolor", "pink")
     window.attributes("-topmost", True)
     label.config(bg="pink")
-    setUpIdle()
+    setup_idle()
     label.bind("<Button-1>", click)
     window.after(0, animate, 0)
     window.mainloop()
 
 
-def setUpIdle():
+def setup_idle():
     global frames, horizontal_displacement
     print("idle")
     frames = [PhotoImage(file="animations/idle.gif", format="gif -index %i" %(i)) for i in range(16)]
     horizontal_displacement = 0
     label.config(image=frames[0])
 
-def setUpRight():
+def setup_right():
     global frames, horizontal_displacement
     print("right")
     frames = [PhotoImage(file="animations/walking_right.gif", format="gif -index %i" %(i)) for i in range(4)]
     horizontal_displacement = 5
     label.config(image=frames[0])
 
-def setUpLeft():
+def setup_left():
     global frames, horizontal_displacement
     print("left")
     frames = [PhotoImage(file="animations/walking_left.gif", format="gif -index %i" %(i)) for i in range(4)]
     horizontal_displacement = -5
     label.config(image=frames[0])
 
-def setUpSleep():
+def setup_sleep():
     global frames, horizontal_displacement
     print("sleep")
     frames = [PhotoImage(file="animations/sleeping.gif", format="gif -index %i" %(i)) for i in range(16)]
     horizontal_displacement = 0
     label.config(image=frames[0])
 
-def setUpAlerted():
+def setup_alerted():
     global frames, horizontal_displacement, label
     print("alert")
     frames = [PhotoImage(file="animations/alerted.gif", format="gif -index %i" % (i)) for i in range(10)]
     horizontal_displacement = 0
     label.config(image=frames[0])
 
-def setUpTalking():
+def setup_talking():
     global frames, horizontal_displacement, label
     frames = [PhotoImage(file="animations/talking.gif", format="gif -index %i" % (i)) for i in range(9)]
     horizontal_displacement = 0
@@ -88,18 +88,18 @@ def setUpTalking():
 
 
 
-def changeAnimation():
+def change_animation():
     options = ["idle", "idle", "right", "left", "sleep"]
     ans = choice(options)
     print("chose: "+ans)
     if ans == "idle":
-        setUpIdle()
+        setup_idle()
     elif ans == "left":
-        setUpLeft()
+        setup_left()
     elif ans == "right":
-        setUpRight()
+        setup_right()
     elif ans == "sleep":
-        setUpSleep()
+        setup_sleep()
 
 
 def animate(count):
@@ -114,7 +114,7 @@ def animate(count):
         num = randint(0, 101)
         #print(num)
         if num < 5 and not clicked and not speaking and not asking:
-            changeAnimation()
+            change_animation()
             label.config(image=default)
     xpos += horizontal_displacement
     if xpos < 0:
@@ -123,11 +123,11 @@ def animate(count):
         xpos = screen_width-150
     window.geometry("150x160+" + str(xpos) + "+" + str(screen_height-220))
     if start_speaking:
-        summonSpeech()
+        summon_speech()
         start_speaking = False
         speaking = True
     if asking and not speaking:
-        getNewAnswer()
+        get_new_answer()
         asking = False
     if add_new_answer:
         speech.addToDatabase(new_answer)
@@ -143,7 +143,7 @@ def click(event):
     mouse_pos = pyautogui.position()
     if xpos < mouse_pos[0] < xpos+150 and ypos < mouse_pos[1] < ypos + 160 and not clicked:
         clicked = True
-        setUpAlerted()
+        setup_alerted()
         try:
             speech_thread = threading.Thread(target=speech.listen)
             speech_thread.start()
@@ -174,7 +174,7 @@ def unclick(text):
 
 
 
-def summonSpeech():
+def summon_speech():
     global img, bubble_text, bubble_reference
     print("test")
     bubble = Toplevel()
@@ -193,41 +193,41 @@ def summonSpeech():
         bubble.geometry("300x150+" + str(xpos + 150) + "+" + str(ypos - 150))
         img = PhotoImage(file="animations/bubble_bl.png")
     pic.config(image=img)
-    setUpTalking()
+    setup_talking()
     bubble_reference = bubble
     window.update_idletasks()
 
-def stopTalking():
+def stop_talking():
     global speaking, bubble_reference, asking
     speaking = False
     if not asking:
-        setUpIdle()
+        setup_idle()
     else:
-        setUpAlerted()
+        setup_alerted()
     bubble_reference.destroy()
 
-def askForNewAnswer():
+def ask_for_new_answer():
     global asking
     asking = True
 
-def getNewAnswer():
+def get_new_answer():
     global xpos, screen_height, clicked, speech_thread, asking
     print("Getting new answer")
     clicked = True
-    setUpAlerted()
+    setup_alerted()
     try:
         speech_thread = threading.Thread(target=speech.learn)
         speech_thread.start()
         asking = False
-        setUpAlerted()
+        setup_alerted()
     except Exception as e:
         unclick("Sorry, I didn't catch that")
 
-def updateNewAnswer(text):
+def update_new_answer(text):
     global new_answer, add_new_answer
     new_answer = text
     add_new_answer = True
 
-def turn_Off():
+def turn_off():
     global turn_off
     turn_off = True
