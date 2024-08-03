@@ -1,3 +1,5 @@
 .env
 .venv
 .idea
+chat.db
+temp.mp4

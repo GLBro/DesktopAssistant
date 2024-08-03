@@ -1,3 +1,6 @@
+import random
+from datetime import date
+from datetime import datetime
 import speech_recognition as sr
 from pyaudio import *
 import os
@@ -6,6 +9,7 @@ import pyttsx3
 import sqlite3
 import movement
 import time
+import video
 
 
 def getAPI():
@@ -21,8 +25,6 @@ def listen():
         audio = recognizer.listen(source)
     text = recognizer.recognize_houndify(audio, CLIENTID, CLIENTKEY)
     print(text)
-    if text[0] == "":
-        text = ["Sorry, I didn't catch that"]
     movement.unclick(respond(text[0]))
 
 
@@ -39,27 +41,45 @@ def respond(text):
     cursor2 = connection2.cursor()
     text = text.lower()
     prev_question = text
-    try:
-        ans = cursor2.execute("SELECT ANSWER FROM responses WHERE QUESTION = '"+text+"'").fetchall()
-        ans = ans[0][0]
-    except:
-        ans = cursor2.execute("SELECT * FROM responses").fetchall()
-        best_pos = -1
-        best_score = 0
-        for i in range(len(ans)):
-            score = LCS(ans[i][0], text) - (abs(len(ans[i][0])-len(text))*0.1)
-            #print(score)
-            if len(ans[i][0])*0.8 < score and score > best_score:
-                print(len(ans[i][0])*0.8, score)
-                best_pos = i
-                best_score = score
-        if best_pos == -1:
-            ans = "sorry i didn't understand, please tell me an appropriate answer"
-            movement.askForNewAnswer()
-        else :
-            ans = ans[best_pos][1]
-    print(ans)
-    return ans
+    if "name" in text:
+        return "my name is cubey, nice to meet you"
+    elif text == "":
+        return "Sorry, I didn't catch that"
+    elif "joke" in text:
+        joke_array = ["what do you call a magic dog? a labracadabrador!", "what did the pirate say when he turned 80? aye matey!", "did you hear about the two people who stole a calendar? they each got six months!", "why are ghosts such bad liars? because they are easy to see through!", "did you hear about the actor who fell through the floorboards? he was just going through a stage!"]
+        return random.choice(joke_array)
+    elif "turn off" in text:
+        movement.turn_Off()
+        return "ok i will turn off"
+    elif "time" in text or "date" in text:
+        current_day = date.today().strftime("%d %B %Y")
+        current_time = datetime.now().strftime("%H:%M")
+        return "the current day is " + current_day + " and the current time is " + current_time
+    elif "play" in text:
+        text = text.replace("play ", "")
+        return video.get_video(text)
+    else:
+        try:
+            ans = cursor2.execute("SELECT ANSWER FROM responses WHERE QUESTION = '"+text+"'").fetchall()
+            ans = ans[0][0]
+        except:
+            ans = cursor2.execute("SELECT * FROM responses").fetchall()
+            best_pos = -1
+            best_score = 0
+            for i in range(len(ans)):
+                score = LCS(ans[i][0], text) - (abs(len(ans[i][0])-len(text))*0.1)
+                #print(score)
+                if len(ans[i][0])*0.8 < score and score > best_score:
+                    print(len(ans[i][0])*0.8, score)
+                    best_pos = i
+                    best_score = score
+            if best_pos == -1:
+                ans = "sorry i didn't understand, please tell me an appropriate answer"
+                movement.askForNewAnswer()
+            else :
+                ans = ans[best_pos][1]
+        print(ans)
+        return ans
 
 
 

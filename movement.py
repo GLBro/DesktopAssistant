@@ -27,6 +27,7 @@ bubble_reference = None
 asking = False
 new_answer = ""
 add_new_answer = False
+turn_off = False
 
 def setupWindow():
     global frames, window, label, screen_width, screen_height
@@ -131,6 +132,9 @@ def animate(count):
     if add_new_answer:
         speech.addToDatabase(new_answer)
         add_new_answer = False
+    if turn_off and not speaking and not start_speaking:
+        window.destroy()
+        exit()
     window.after(100, animate, count)
 
 def click(event):
@@ -223,3 +227,7 @@ def updateNewAnswer(text):
     global new_answer, add_new_answer
     new_answer = text
     add_new_answer = True
+
+def turn_Off():
+    global turn_off
+    turn_off = True
