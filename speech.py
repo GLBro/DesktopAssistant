@@ -32,7 +32,7 @@ def speak(text):
     global engine
     engine.say(text)
     engine.runAndWait()
-    movement.stopTalking()
+    movement.stop_talking()
 
 
 def respond(text):
@@ -49,7 +49,7 @@ def respond(text):
         joke_array = ["what do you call a magic dog? a labracadabrador!", "what did the pirate say when he turned 80? aye matey!", "did you hear about the two people who stole a calendar? they each got six months!", "why are ghosts such bad liars? because they are easy to see through!", "did you hear about the actor who fell through the floorboards? he was just going through a stage!"]
         return random.choice(joke_array)
     elif "turn off" in text:
-        movement.turn_Off()
+        movement.turning_off()
         return "ok i will turn off"
     elif "time" in text or "date" in text:
         current_day = date.today().strftime("%d %B %Y")
@@ -75,7 +75,7 @@ def respond(text):
                     best_score = score
             if best_pos == -1:
                 ans = "sorry i didn't understand, please tell me an appropriate answer"
-                movement.askForNewAnswer()
+                movement.ask_for_new_answer()
             else :
                 ans = ans[best_pos][1]
         print(ans)
@@ -126,7 +126,7 @@ def learn():
     if text[0] == "":
         text = ["Sorry, I didn't catch that"]
     else:
-        movement.updateNewAnswer(text[0])
+        movement.update_new_answer(text[0])
     movement.unclick(text[0])
 
 def add_to_database(text):

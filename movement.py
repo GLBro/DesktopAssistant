@@ -31,7 +31,7 @@ turn_off = False
 
 def setup_window():
     global frames, window, label, screen_width, screen_height
-    speech.getAPI()
+    speech.get_api()
     window.geometry("150x160+"+str(xpos)+"+"+str(screen_height-200))
     window.config(highlightbackground="pink")
     window.overrideredirect(True)
@@ -130,7 +130,7 @@ def animate(count):
         get_new_answer()
         asking = False
     if add_new_answer:
-        speech.addToDatabase(new_answer)
+        speech.add_to_database(new_answer)
         add_new_answer = False
     if turn_off and not speaking and not start_speaking:
         window.destroy()
@@ -228,6 +228,6 @@ def update_new_answer(text):
     new_answer = text
     add_new_answer = True
 
-def turn_off():
+def turning_off():
     global turn_off
     turn_off = True
