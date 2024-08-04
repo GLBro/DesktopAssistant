@@ -5,6 +5,7 @@ from random import *
 from tkinter import *
 
 import speech_recognition
+from PIL import ImageTk, Image
 
 import speech
 import pyautogui
@@ -28,6 +29,10 @@ asking = False
 new_answer = ""
 add_new_answer = False
 turn_off = False
+image_to_display = ImageTk.PhotoImage(file="animations/bubble_bl.png")
+image_toggle = False
+image_reference = None
+image_time = -1
 
 def setup_window():
     global frames, window, label, screen_width, screen_height
@@ -103,7 +108,7 @@ def change_animation():
 
 
 def animate(count):
-    global frames, label, window, default, xpos, horizontal_displacement, clicked, start_speaking, speaking, asking, new_answer, add_new_answer
+    global frames, label, window, default, xpos, horizontal_displacement, clicked, start_speaking, speaking, asking, new_answer, add_new_answer, image_toggle, image_time
     if len(frames) > 0:
         count += 1
         if count >= len(frames):
@@ -135,6 +140,12 @@ def animate(count):
     if turn_off and not speaking and not start_speaking:
         window.destroy()
         exit()
+    if image_toggle:
+        summon_image()
+        image_toggle = False
+    if image_time != -1 and image_time+5 < time.time():
+        image_time = -1
+        delete_image()
     window.after(100, animate, count)
 
 def click(event):
@@ -231,3 +242,31 @@ def update_new_answer(text):
 def turning_off():
     global turn_off
     turn_off = True
+
+def activate_image(new_image):
+    global image_to_display, image_toggle
+    image_to_display = ImageTk.PhotoImage(new_image)
+    image_toggle = True
+
+def summon_image():
+    global image_to_display, image_reference, image_toggle, image_time
+    print("displaying image")
+    level = Toplevel()
+    ypos = screen_height - 200
+    size = (image_to_display.width(), image_to_display.height())
+    level.geometry(str(size[0]) + "x" + str(size[1]) + "+" + str(xpos) + "+" + str(ypos - size[1]))
+    level.config(highlightbackground="pink")
+    level.overrideredirect(True)
+    level.wm_attributes("-transparentcolor", "pink")
+    level.attributes("-topmost", True)
+    pic = Label(level, image=image_to_display, bg="pink")
+    pic.img = img
+    pic.pack()
+    image_reference = level
+    image_time = time.time()
+    window.update_idletasks()
+def delete_image():
+    global image_reference
+    print("deleting image")
+    image_reference.destroy()
+    setup_idle()

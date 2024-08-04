@@ -10,6 +10,7 @@ import sqlite3
 import movement
 import time
 import video
+import web
 
 
 def get_api():
@@ -55,7 +56,12 @@ def respond(text):
         current_day = date.today().strftime("%d %B %Y")
         current_time = datetime.now().strftime("%H:%M")
         return "the current day is " + current_day + " and the current time is " + current_time
-    elif "play" in text:
+    elif "display " in text or "show me" in text:
+        text = text.replace("show me a ", "", 1).replace("show me ", "", 1)
+        text = text.replace("display ", "", 1)
+        movement.activate_image(web.get_image(text))
+        return "this is the " + text + " i found"
+    elif "play " in text:
         text = text.replace("play ", "")
         return video.get_video(text)
     else:
