@@ -64,6 +64,9 @@ def respond(text):
     elif "play " in text:
         text = text.replace("play ", "")
         return video.get_video(text)
+    elif "search" in text:
+        text = text.replace("search ", "")
+        return web.get_description(text)
     else:
         try:
             ans = cursor2.execute("SELECT ANSWER FROM responses WHERE QUESTION = '"+text+"'").fetchall()

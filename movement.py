@@ -149,10 +149,10 @@ def animate(count):
     window.after(100, animate, count)
 
 def click(event):
-    global xpos, screen_height, clicked, speech_thread
+    global xpos, screen_height, clicked, speech_thread, start_speaking, speaking
     ypos = screen_height - 220
     mouse_pos = pyautogui.position()
-    if xpos < mouse_pos[0] < xpos+150 and ypos < mouse_pos[1] < ypos + 160 and not clicked:
+    if xpos < mouse_pos[0] < xpos+150 and ypos < mouse_pos[1] < ypos + 160 and not clicked and not start_speaking and not speaking:
         clicked = True
         setup_alerted()
         try:
@@ -171,10 +171,14 @@ def unclick(text):
     out = ""
     counter = 0
     limit = 15
+    adder = 15
+    if len(bubble_text) > 50:
+        limit = 25
+        adder = 25
     for chunk in split_text:
         counter += len(chunk)
         if counter > limit:
-            limit = limit + 15
+            limit = limit + adder
             out += chunk+"\n"
         else:
             out += chunk+" "
@@ -196,7 +200,10 @@ def summon_speech():
     bubble.wm_attributes("-transparentcolor", "pink")
     bubble.attributes("-topmost", True)
     img = PhotoImage(file="animations/bubble_br.png")
-    pic = Label(bubble, bg="pink", text=bubble_text, image=img, compound="center", font="Helvetica 12 bold")
+    font = "Helvetica 12 bold"
+    if len(bubble_text) > 50:
+        font = "Helvetica 8 bold"
+    pic = Label(bubble, bg="pink", text=bubble_text, image=img, compound="center", font=font)
     pic.pack()
     if xpos > 450:
         img = PhotoImage(file="animations/bubble_br.png")
