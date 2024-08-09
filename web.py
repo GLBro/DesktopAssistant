@@ -7,21 +7,22 @@ from lxml import html
 from PIL import Image
 from bs4 import BeautifulSoup
 
-
-
+# Gets an image matching the search criteria from the web
 def get_image(search):
-    url = "https://www.google.com/search?q="+search+"&udm=2"
+    url = "https://www.google.com/search?q=" + search + "&udm=2"
     response = requests.get(url)
     tree = html.fromstring(response.content)
     first_image = tree.xpath("//img/@src")
     image = Image.open(requests.get(first_image[1], stream=True).raw)
     return image
 
+
+# Searches Google for a description related to a given topic
 def get_description(search):
     AGENT = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
     }
-    url = "https://www.google.com/search?q="+search
+    url = "https://www.google.com/search?q=" + search
     response = requests.get(url, headers=AGENT)
     tree = html.fromstring(response.content)
     try:
@@ -33,7 +34,7 @@ def get_description(search):
             desc[0] = ""
             print("success")
     except:
-        desc = tree.xpath("//div[@data-sncf=\"1\"][1]/div[@style=\"-webkit-line-clamp:2\"]//text()")
+        return "Sorry, I couldn't find anything"
     first = ""
     print(desc)
     for i in range(len(desc)):
@@ -55,5 +56,3 @@ def get_description(search):
             first = first[0:pos]
     print(first)
     return first
-
-
